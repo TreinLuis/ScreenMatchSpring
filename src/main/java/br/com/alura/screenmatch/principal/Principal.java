@@ -3,15 +3,19 @@ package br.com.alura.screenmatch.principal;
 import br.com.alura.screenmatch.model.DadosEpisodio;
 import br.com.alura.screenmatch.model.DadosSerie;
 import br.com.alura.screenmatch.model.DadosTemporada;
+import br.com.alura.screenmatch.model.Episodio;
 import br.com.alura.screenmatch.service.ConsumoAPI;
 import br.com.alura.screenmatch.service.ConverteDados;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class Principal {
+    private DadosTemporada dadosTemporada;
     private int temporadas;
     private ConsumoAPI consumoApi = new ConsumoAPI();
     private final String ENDERECO = "https://www.omdbapi.com/?t=";
@@ -42,32 +46,47 @@ public class Principal {
                     uri = ENDERECO + serie + "&season=" + temporadas + API_KEY;
                     json = consumoApi.obterDados(uri);
                     DadosTemporada dadosTemporada = conversor.obterDados(json, DadosTemporada.class);
-                    System.out.println(dadosTemporada);
                     temp.add(dadosTemporada);
                 }
-                temp.forEach(t -> t.episodios().forEach(e -> System.out.println(e.titulo())));//Printando somente os episodeos de todas as temporadas(isto é um lambda)
-            }
-            System.out.println("Digite a temporada: ");
-            temporadas = in.nextInt();
-            in.nextLine();
-            uri = ENDERECO + serie + "&season=" + temporadas + API_KEY;
-            json = consumoApi.obterDados(uri);
+                //temp.forEach(t -> t.episodios().forEach(e -> System.out.println(e.titulo())));//Printando somente os episodeos de todas as temporadas(isto é um lambda)
+                List<DadosEpisodio> dadosEpisodios = temp.stream()
+                        .flatMap(t -> t.episodios().stream())
+                        .collect(Collectors.toList());
 
-            DadosTemporada dadosTemporada = conversor.obterDados(json, DadosTemporada.class);
-            System.out.println("Deseja adicionar um unico episodio á pesquisa?");
-            decidir = in.nextLine();
-            if (decidir.equalsIgnoreCase("sim")) {
-                System.out.println("Digite o episodio: ");
-                int episodio = in.nextInt();
-                uri = ENDERECO + serie + "&season=" + temporadas + "&episode=" + episodio + API_KEY;
+                System.out.println("\n Top 5 episódios");
+                dadosEpisodios.stream()
+                        .filter(e -> !e.avaliacao().equalsIgnoreCase("N/A"))
+                        .sorted(Comparator.comparing(DadosEpisodio::avaliacao).reversed())
+                        .limit(5)
+                        .forEach(System.out::println);
+                //List<Episodio> =
+
+
+            } else {
+                System.out.println("Digite a temporada: ");
+                temporadas = in.nextInt();
+                in.nextLine();
+                uri = ENDERECO + serie + "&season=" + temporadas + API_KEY;
                 json = consumoApi.obterDados(uri);
 
-                DadosEpisodio dadosEpisodio = conversor.obterDados(json, DadosEpisodio.class);
-                System.out.println(dadosEpisodio);
+
+                dadosTemporada = conversor.obterDados(json, DadosTemporada.class);
+                System.out.println("Deseja adicionar um unico episodio á pesquisa?");
+                decidir = in.nextLine();
+                if (decidir.equalsIgnoreCase("sim")) {
+                    System.out.println("Digite o episodio: ");
+                    int episodio = in.nextInt();
+                    uri = ENDERECO + serie + "&season=" + temporadas + "&episode=" + episodio + API_KEY;
+                    json = consumoApi.obterDados(uri);
+
+
+                    DadosEpisodio dadosEpisodio = conversor.obterDados(json, DadosEpisodio.class);
+                    System.out.println(dadosEpisodio);
+                }
             }
-            //System.out.println(dadosTemporada);
+            System.out.println(dadosTemporada);
         }
-        System.out.println(dados);
+        //System.out.println(dados);
     }
 
 }
