@@ -10,10 +10,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -56,19 +53,31 @@ public class Principal {
                         .flatMap(t -> t.episodios().stream())
                         .collect(Collectors.toList());
 
-                System.out.println("\n Top 5 episódios");
-                dadosEpisodios.stream()
-                        .filter(e -> !e.avaliacao().equalsIgnoreCase("N/A"))
-                        //.peek(e -> System.out.println("Primeiro filtro")) BOM PARA DEBUGAR
-                        .sorted(Comparator.comparing(DadosEpisodio::avaliacao).reversed())
-                        .limit(5)
-                        .map(e->e.titulo().toUpperCase())
-                        .forEach(System.out::println);
-//                List<Episodio> episodios = temp.stream()
-//                        .flatMap(t -> t.episodios().stream()
-//                                .map(d -> new Episodio(t.numero(), d))
-//                        ).collect(Collectors.toList());
-                //episodios.forEach(System.out::println);
+//                System.out.println("\n Top 5 episódios");
+//                dadosEpisodios.stream()
+//                        .filter(e -> !e.avaliacao().equalsIgnoreCase("N/A"))
+//                        //.peek(e -> System.out.println("Primeiro filtro")) BOM PARA DEBUGAR
+//                        .sorted(Comparator.comparing(DadosEpisodio::avaliacao).reversed())
+//                        .limit(5)
+//                        .map(e->e.titulo().toUpperCase())
+//                        .forEach(System.out::println);
+                List<Episodio> episodios = temp.stream()
+                        .flatMap(t -> t.episodios().stream()
+                                .map(d -> new Episodio(t.numero(), d))
+                        ).collect(Collectors.toList());
+                episodios.forEach(System.out::println);
+
+//                System.out.println("Digite o trecho do título");
+//                var trechoTitulo = in.nextLine();
+//                Optional<Episodio> episodiosBuscado = episodios.stream()
+//                        .filter(e -> e.getTitulo().toUpperCase().contains(trechoTitulo.toUpperCase()))
+//                        .findFirst();
+//                if(episodiosBuscado.isPresent()){
+//                    System.out.println("Episodeo econtrado!");
+//                    System.out.println(episodiosBuscado);
+//                } else {
+//                    System.out.println("Episodio não foi encontrado!");
+//                }
 
                 //System.out.println("Apartir de que ano você deseja ver os episodios? ");
                // var ano = in.nextInt();
@@ -84,7 +93,22 @@ public class Principal {
 //                                        "Episódio: " + e.getTemporada() +
 //                                            " Data Lançamento"+ e.getDataLancamento().format(formatador)));
 
-                }
+
+                Map<Integer,Double> avaliacaoPorTemporada = episodios.stream()
+                        .filter(e-> e.getAvaliacao() > 0.0)
+                        .collect(Collectors.groupingBy
+                                (Episodio::getTemporada,Collectors.averagingDouble(Episodio::getAvaliacao)));
+                System.out.println(avaliacaoPorTemporada);
+
+                DoubleSummaryStatistics est = episodios.stream()
+                        .filter(e-> e.getAvaliacao() > 0.0)
+                        .collect(Collectors.summarizingDouble(Episodio::getAvaliacao));
+                System.out.println("Média: " + est.getAverage());
+                System.out.println("Melhor episódio: " + est.getMax());
+                System.out.println("Pior episódio: " + est.getMin());
+                System.out.println("Quantidade: " + est.getCount());
+
+            }
             } else {
                 System.out.println("Digite a temporada: ");
                 temporadas = in.nextInt();
