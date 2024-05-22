@@ -8,14 +8,17 @@ import br.com.alura.screenmatch.service.ConsumoAPI;
 import br.com.alura.screenmatch.service.ConverteDados;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
+
 public class Principal {
-    private DadosTemporada dadosTemporada;
+    private DadosTemporada dadosTemporada ;
     private int temporadas;
     private ConsumoAPI consumoApi = new ConsumoAPI();
     private final String ENDERECO = "https://www.omdbapi.com/?t=";
@@ -43,7 +46,7 @@ public class Principal {
                 List<DadosTemporada> temp = new ArrayList<>();
                 for (int i = 1; i <= dados.totalTemporadas(); i++) {
                     temporadas = 1;
-                    uri = ENDERECO + serie + "&season=" + temporadas + API_KEY;
+                    uri = ENDERECO + serie + "&season=" + i + API_KEY;
                     json = consumoApi.obterDados(uri);
                     DadosTemporada dadosTemporada = conversor.obterDados(json, DadosTemporada.class);
                     temp.add(dadosTemporada);
@@ -56,12 +59,32 @@ public class Principal {
                 System.out.println("\n Top 5 episódios");
                 dadosEpisodios.stream()
                         .filter(e -> !e.avaliacao().equalsIgnoreCase("N/A"))
+                        //.peek(e -> System.out.println("Primeiro filtro")) BOM PARA DEBUGAR
                         .sorted(Comparator.comparing(DadosEpisodio::avaliacao).reversed())
                         .limit(5)
+                        .map(e->e.titulo().toUpperCase())
                         .forEach(System.out::println);
-                //List<Episodio> =
+//                List<Episodio> episodios = temp.stream()
+//                        .flatMap(t -> t.episodios().stream()
+//                                .map(d -> new Episodio(t.numero(), d))
+//                        ).collect(Collectors.toList());
+                //episodios.forEach(System.out::println);
 
+                //System.out.println("Apartir de que ano você deseja ver os episodios? ");
+               // var ano = in.nextInt();
+                //in.nextLine();
 
+               // LocalDate dataBusca = LocalDate.of(ano,1,1);
+
+                //DateTimeFormatter formatador = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                //episodios.stream()
+                        //.filter(e -> e.getDataLancamento() != null && e.getDataLancamento().isAfter(dataBusca))
+                        //.forEach(e -> System.out.println(
+//                                "Temporada: " + e.getTemporada() +
+//                                        "Episódio: " + e.getTemporada() +
+//                                            " Data Lançamento"+ e.getDataLancamento().format(formatador)));
+
+                }
             } else {
                 System.out.println("Digite a temporada: ");
                 temporadas = in.nextInt();
@@ -84,9 +107,8 @@ public class Principal {
                     System.out.println(dadosEpisodio);
                 }
             }
-            System.out.println(dadosTemporada);
+            //System.out.println(dadosTemporada);
         }
         //System.out.println(dados);
-    }
 
 }
