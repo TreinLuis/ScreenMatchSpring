@@ -3,6 +3,8 @@ package br.com.alura.screenmatch.model;
 import br.com.alura.screenmatch.service.ConsultaChatCPT;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.OptionalDouble;
 
 @Entity
@@ -20,6 +22,9 @@ public class Serie{
     private String atores;
     private String poster;
     private String sinopse;
+    @OneToMany(mappedBy = "serie",cascade = CascadeType.ALL)//como as propriedades secundarias sao salvas(ALL varias persistencias salvas)
+    @Transient//Dps eu penso no relacionamento
+    private List<Episodio> episodios = new ArrayList<>();
 
     public Serie(DadosSerie dadosSerie) {
         this.titulo = dadosSerie.titulo();
@@ -31,9 +36,9 @@ public class Serie{
         this.sinopse = ConsultaChatCPT.obterTraducao(dadosSerie.sinopse().trim());
     }
 
-    public Serie() {
+    public Serie() {}//JPA EXIGE O CONTRUTOR PADRAO
 
-    }
+
 
     public String getTitulo() {
         return titulo;
@@ -49,6 +54,14 @@ public class Serie{
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public List<Episodio> getEpisodios() {
+        return episodios;
+    }
+
+    public void setEpisodios(List<Episodio> episodios) {
+        this.episodios = episodios;
     }
 
     public Double getAvaliação() {
