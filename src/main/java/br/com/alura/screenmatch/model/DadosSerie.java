@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)//Este comando ignora os dados que nao foram listados por mim na record
 public record DadosSerie(@JsonAlias("Title") String titulo,
-                         @JsonAlias("imdbRating") String avaliação,
+                         @JsonAlias("imdbRating") String avaliacao,
                          @JsonAlias("totalSeasons") Integer totalTemporadas,
                          @JsonAlias("Genre") String genero,
                          @JsonAlias("Actors") String atores,

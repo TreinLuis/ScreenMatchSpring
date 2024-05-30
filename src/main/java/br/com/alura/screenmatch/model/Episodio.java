@@ -1,7 +1,11 @@
 package br.com.alura.screenmatch.model;
 
-
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
@@ -9,31 +13,36 @@ import java.time.format.DateTimeParseException;
 @Entity
 @Table(name = "episodios")
 public class Episodio {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Integer temporada;
     private String titulo;
-    private Integer numero;
+    private Integer numeroEpisodio;
     private Double avaliacao;
     private LocalDate dataLancamento;
-    @ManyToOne()
+    @ManyToOne
     private Serie serie;
 
-    public Episodio(String numeroTemp, DadosEpisodio d) {
-        try{
-            this.temporada = Integer.valueOf(numeroTemp);
-            this.avaliacao = Double.valueOf(d.avaliacao());
-        }catch (NumberFormatException e){
-            this.avaliacao = 0.0;
-        } catch ( DateTimeParseException a){
-            this.dataLancamento = LocalDate.parse(d.dataLancamento());
-        }
-        this.titulo = d.titulo();
-        this.numero = d.numero();
-    }
-    public Episodio(){
+    public Episodio(String numero){}
 
+    public Episodio(Integer numeroTemporada, DadosEpisodio dadosEpisodio) {
+        this.temporada = numeroTemporada;
+        this.titulo = dadosEpisodio.titulo();
+        this.numeroEpisodio = dadosEpisodio.numero();
+
+        try {
+            this.avaliacao = Double.valueOf(dadosEpisodio.avaliacao());
+        } catch (NumberFormatException ex) {
+            this.avaliacao = 0.0;
+        }
+
+        try {
+            this.dataLancamento = LocalDate.parse(dadosEpisodio.dataLancamento());
+        } catch (DateTimeParseException ex) {
+            this.dataLancamento = null;
+        }
     }
 
     public Long getId() {
@@ -68,12 +77,12 @@ public class Episodio {
         this.titulo = titulo;
     }
 
-    public Integer getNumero() {
-        return numero;
+    public Integer getNumeroEpisodio() {
+        return numeroEpisodio;
     }
 
-    public void setNumero(Integer numero) {
-        this.numero = numero;
+    public void setNumeroEpisodio(Integer numeroEpisodio) {
+        this.numeroEpisodio = numeroEpisodio;
     }
 
     public Double getAvaliacao() {
@@ -94,14 +103,10 @@ public class Episodio {
 
     @Override
     public String toString() {
-        return "Episodio{" +
-                "temporada=" + temporada +
+        return "temporada=" + temporada +
                 ", titulo='" + titulo + '\'' +
-                ", numeroEpisodio=" + numero +
+                ", numeroEpisodio=" + numeroEpisodio +
                 ", avaliacao=" + avaliacao +
-                ", dataLancamento=" + dataLancamento +
-                '}';
+                ", dataLancamento=" + dataLancamento ;
     }
 }
-
-

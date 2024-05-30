@@ -9,43 +9,32 @@ import java.util.OptionalDouble;
 
 @Entity
 @Table(name = "series")
-public class Serie{
+public class Serie {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(unique = true)
     private String titulo;
-    private Double avaliação;
     private Integer totalTemporadas;
+    private Double avaliacao;
     @Enumerated(EnumType.STRING)
     private Categoria genero;
     private String atores;
     private String poster;
     private String sinopse;
-    @OneToMany(mappedBy = "serie",cascade = CascadeType.ALL)//como as propriedades secundarias sao salvas(ALL varias persistencias salvas)
-    @Transient//Dps eu penso no relacionamento
+
+    @OneToMany(mappedBy = "serie", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Episodio> episodios = new ArrayList<>();
 
-    public Serie(DadosSerie dadosSerie) {
+    public Serie() {}
+
+    public Serie(DadosSerie dadosSerie){
         this.titulo = dadosSerie.titulo();
-        this.avaliação = OptionalDouble.of(Double.valueOf(dadosSerie.avaliação())).orElse(0);
         this.totalTemporadas = dadosSerie.totalTemporadas();
+        this.avaliacao = OptionalDouble.of(Double.valueOf(dadosSerie.avaliacao())).orElse(0);
         this.genero = Categoria.fromString(dadosSerie.genero().split(",")[0].trim());
-        this.atores = atores;
-        this.poster = poster;
-        this.sinopse = ConsultaChatCPT.obterTraducao(dadosSerie.sinopse().trim());
-    }
-
-    public Serie() {}//JPA EXIGE O CONTRUTOR PADRAO
-
-
-
-    public String getTitulo() {
-        return titulo;
-    }
-
-    public void setTitulo(String titulo) {
-        this.titulo = titulo;
+        this.atores = dadosSerie.atores();
+        this.poster = dadosSerie.poster();
+        this.sinopse = ConsultaChatCPT.obterTraducao(dadosSerie.sinopse()).trim();
     }
 
     public Long getId() {
@@ -61,15 +50,16 @@ public class Serie{
     }
 
     public void setEpisodios(List<Episodio> episodios) {
+        episodios.forEach(e -> e.setSerie(this));
         this.episodios = episodios;
     }
 
-    public Double getAvaliação() {
-        return avaliação;
+    public String getTitulo() {
+        return titulo;
     }
 
-    public void setAvaliação(Double avaliação) {
-        this.avaliação = avaliação;
+    public void setTitulo(String titulo) {
+        this.titulo = titulo;
     }
 
     public Integer getTotalTemporadas() {
@@ -78,6 +68,14 @@ public class Serie{
 
     public void setTotalTemporadas(Integer totalTemporadas) {
         this.totalTemporadas = totalTemporadas;
+    }
+
+    public Double getAvaliacao() {
+        return avaliacao;
+    }
+
+    public void setAvaliacao(Double avaliacao) {
+        this.avaliacao = avaliacao;
     }
 
     public Categoria getGenero() {
@@ -116,12 +114,12 @@ public class Serie{
     public String toString() {
         return
                 "genero=" + genero +
-                ", titulo='" + titulo + '\'' +
-                ", avaliação=" + avaliação +
-                ", totalTemporadas=" + totalTemporadas +
-                ", atores='" + atores + '\'' +
-                ", poster='" + poster + '\'' +
-                ", sinopse='" + sinopse + '\''
-                ;
+                        ", titulo='" + titulo + '\'' +
+                        ", totalTemporadas=" + totalTemporadas +
+                        ", avaliacao=" + avaliacao +
+                        ", atores='" + atores + '\'' +
+                        ", poster='" + poster + '\'' +
+                        ", sinopse='" + sinopse + '\'' +
+                        ", episodios='" + episodios + '\'';
     }
 }
